@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block header_title %}User Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <div class="card bg-primary text-white shadow-sm border-0">
+            <div class="card-body p-4">
+                <h3 class="card-title display-6">Welcome, {{ user.username }}!</h3>
+                <p class="card-text lead">Manage your health journey here.</p>
+                <a href="{% url 'book_appointment' %}" class="btn btn-light text-primary fw-bold mt-2">Book New Appointment</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-white">
+        <h5 class="mb-0">My Appointments</h5>
+    </div>
+    <div class="card-body">
+        {% if appointments %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Hospital</th>
+                        <th>Doctor</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for apt in appointments %}
+                    <tr>
+                        <td>{{ apt.date }}</td>
+                        <td>{{ apt.time }}</td>
+                        <td>
+                            <div class="fw-bold">{{ apt.doctor.hospital.name }}</div>
+                            <small class="text-muted">{{ apt.doctor.hospital.city.name }}</small>
+                        </td>
+                        <td>
+                            <div class="fw-bold">{{ apt.doctor }}</div>
+                            <small class="text-muted">{{ apt.doctor.specialization }}</small>
+                        </td>
+                        <td>
+                            {% if apt.status == 'CONFIRMED' %}
+                                <span class="badge bg-success">Confirmed</span>
+                            {% elif apt.status == 'PENDING' %}
+                                <span class="badge bg-warning text-dark">Pending</span>
+                            {% elif apt.status == 'CANCELLED' %}
+                                <span class="badge bg-danger">Cancelled</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ apt.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                {% if apt.doctor.hospital.phone %}
+                                <a href="tel:{{ apt.doctor.hospital.phone }}" class="btn btn-outline-success" title="Call Hospital">
+                                    <i class="bi bi-telephone"></i>
+                                </a>
+                                {% endif %}
+                                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#locationModal{{ apt.id }}" title="See Location">
+                                    <i class="bi bi-geo-alt"></i>
+                                </button>
+                            </div>
+
+                            <!-- Location Modal -->
+                            <div class="modal fade" id="locationModal{{ apt.id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">{{ apt.doctor.hospital.name }}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <strong>Address:</strong> {{ apt.doctor.hospital.address }}, {{ apt.doctor.hospital.city.name }}<br>
+                                                <strong>Phone:</strong> {{ apt.doctor.hospital.phone }}<br>
+                                                <strong>Email:</strong> {{ apt.doctor.hospital.email }}
+                                            </div>
+                                            <div class="ratio ratio-16x9 mb-3">
+                                                <iframe 
+                                                    src="https://maps.google.com/maps?q={{ apt.doctor.hospital.name|urlencode }} {{ apt.doctor.hospital.city.name|urlencode }}&t=&z=13&ie=UTF8&iwloc=&output=embed" 
+                                                    style="border:0;" allowfullscreen="" loading="lazy">
+                                                </iframe>
+                                            </div>
+                                            <div class="text-end">
+                                                <a href="https://www.google.com/maps/search/?api=1&query={{ apt.doctor.hospital.name|urlencode }}+{{ apt.doctor.hospital.city.name|urlencode }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                                    Open in Google Maps <i class="bi bi-box-arrow-up-right"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+            <div class="text-center py-4">
+                <p class="text-muted">No appointments found.</p>
+                <a href="{% url 'book_appointment' %}" class="btn btn-outline-primary btn-sm">Book your first appointment</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
