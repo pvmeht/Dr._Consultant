@@ -1,4 +1,4 @@
-# HealthCO Project Setup Guide
+# DR. Consultant (HealthCO) Project Setup Guide
 
 This guide will help you set up and run the HealthCO project, which consists of a Django Backend and a Tkinter Desktop Application.
 
