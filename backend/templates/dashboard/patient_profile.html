@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block header_title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="container container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Edit Profile</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {% if form.errors %}
+                            <div class="alert alert-danger">
+                                <strong>Please correct the errors below:</strong>
+                                <ul>
+                                {% for field, errors in form.errors.items %}
+                                    <li>{{ field }}: {{ errors.0 }}</li>
+                                {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">First Name</label>
+                                <input type="text" name="first_name" class="form-control" value="{{ form.first_name.value|default:'' }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Last Name</label>
+                                <input type="text" name="last_name" class="form-control" value="{{ form.last_name.value|default:'' }}">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                             <div class="col-md-6">
+                                <label class="form-label">Email</label>
+                                <input type="email" name="email" class="form-control" value="{{ form.email.value|default:'' }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Phone</label>
+                                <input type="text" name="phone" class="form-control" value="{{ form.phone.value|default:'' }}">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Date of Birth</label>
+                                {{ form.dob }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Gender</label>
+                                <select name="gender" class="form-select">
+                                    {% for value, text in form.fields.gender.choices %}
+                                    <option value="{{ value }}" {% if form.gender.value == value %}selected{% endif %}>{{ text }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                             <div class="col-md-4">
+                                <label class="form-label">Blood Group</label>
+                                <input type="text" name="blood_group" class="form-control" value="{{ form.blood_group.value|default:'' }}">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Address</label>
+                            <textarea name="address" class="form-control" rows="3">{{ form.address.value|default:'' }}</textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-danger">Emergency Contact</label>
+                            <input type="text" name="emergency_contact" class="form-control border-danger" value="{{ form.emergency_contact.value|default:'' }}">
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
