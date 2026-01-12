@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block header_title %}Today's Vitals{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Record Vitals</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Height (cm)</label>
+                            {{ form.height }}
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Weight (kg)</label>
+                            {{ form.weight }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label">BP (Sys)</label>
+                            {{ form.bp_systolic }}
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label">BP (Dia)</label>
+                            {{ form.bp_diastolic }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Heart Rate</label>
+                            {{ form.heart_rate }}
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Temp (°C)</label>
+                            {{ form.temperature }}
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Save Vitals</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Vitals History</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Height/Weight</th>
+                                <th>BP</th>
+                                <th>Heart Rate</th>
+                                <th>Temp</th>
+                                <th>Recorded By</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for v in history %}
+                            <tr>
+                                <td>{{ v.date|date:"M d, Y H:i" }}</td>
+                                <td>{{ v.height }}cm / {{ v.weight }}kg</td>
+                                <td>{{ v.bp_systolic }}/{{ v.bp_diastolic }}</td>
+                                <td>{{ v.heart_rate }} bpm</td>
+                                <td>{{ v.temperature }}°C</td>
+                                <td>
+                                    {% if v.hospital %}
+                                    <span class="badge bg-info text-dark">{{ v.hospital.name }}</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Self</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">No vitals recorded yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
