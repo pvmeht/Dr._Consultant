@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block header_title %}Add New Hospital{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Hospital Name</label>
+                    {{ form.name }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">City</label>
+                    {{ form.city }}
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Address</label>
+                {{ form.address }}
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Phone</label>
+                    {{ form.phone }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Email</label>
+                    {{ form.email }}
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Website</label>
+                {{ form.website }}
+            </div>
+            
+            <hr class="my-4">
+            <h5 class="mb-3">Admin Account Details</h5>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Username</label>
+                    {{ form.username }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Password</label>
+                    {{ form.password }}
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Register Hospital</button>
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

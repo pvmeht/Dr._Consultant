@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block header_title %}All Hospitals{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Registered Hospitals</h5>
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary btn-sm">Back to Dashboard</a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>City</th>
+                        <th>Phone</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for hospital in hospitals %}
+                    <tr>
+                        <td>#{{ hospital.id }}</td>
+                        <td>
+                            <div class="fw-bold">{{ hospital.name }}</div>
+                            <small class="text-muted">{{ hospital.address|truncatechars:30 }}</small>
+                        </td>
+                        <td>{{ hospital.city.name }}</td>
+                        <td>{{ hospital.phone }}</td>
+                        <td>
+                            {% if hospital.is_verified %}
+                                <span class="badge bg-success">Verified</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if not hospital.is_verified %}
+                            <a href="{% url 'verify_hospital' hospital.id %}" class="btn btn-sm btn-success">Verify</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">No hospitals found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
