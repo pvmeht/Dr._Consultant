@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block header_title %}Book Appointment{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <!-- Cascading Selection -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">State</label>
+                            <select id="id_state" class="form-select">
+                                <option value="">Select State</option>
+                                {% for state in states %}
+                                <option value="{{ state }}">{{ state }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">City</label>
+                            <select id="id_city" class="form-select" disabled>
+                                <option value="">Select City</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Hospital</label>
+                        <select id="id_hospital" class="form-select" disabled>
+                            <option value="">Select Hospital</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Select Doctor</label>
+                         <!-- Currently rendered by django form, we might need to manipulate it or replace it -->
+                         <!-- Let's replace the Django widget rendering with our controlled select, 
+                              but ensure the name matches what the form expects ('doctor') -->
+                        <select name="doctor" id="id_doctor" class="form-select" required disabled>
+                            <option value="">Select Doctor</option>
+                        </select>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Date</label>
+                            {{ form.date }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Time</label>
+                            {{ form.time }}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Notes / Reason</label>
+                        {{ form.notes }}
+                    </div>
+                    <button type="submit" class="btn btn-primary">Confirm Booking</button>
+                    <a href="{% url 'patient_dashboard' %}" class="btn btn-outline-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const stateSelect = document.getElementById('id_state');
+        const citySelect = document.getElementById('id_city');
+        const hospitalSelect = document.getElementById('id_hospital');
+        const doctorSelect = document.getElementById('id_doctor');
+
+        // Fetch Cities
+        stateSelect.addEventListener('change', function() {
+            const state = this.value;
+            citySelect.innerHTML = '<option value="">Loading...</option>';
+            citySelect.disabled = true;
+            hospitalSelect.innerHTML = '<option value="">Select Hospital</option>';
+            hospitalSelect.disabled = true;
+            doctorSelect.innerHTML = '<option value="">Select Doctor</option>';
+            doctorSelect.disabled = true;
+
+            if (state) {
+                fetch(`/ajax/cities/?state=${state}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        citySelect.innerHTML = '<option value="">Select City</option>';
+                        data.forEach(city => {
+                            citySelect.innerHTML += `<option value="${city.id}">${city.name}</option>`;
+                        });
+                        citySelect.disabled = false;
+                    });
+            } else {
+                 citySelect.innerHTML = '<option value="">Select City</option>';
+            }
+        });
+
+        // Fetch Hospitals
+        citySelect.addEventListener('change', function() {
+            const cityId = this.value;
+            hospitalSelect.innerHTML = '<option value="">Loading...</option>';
+            hospitalSelect.disabled = true;
+            doctorSelect.innerHTML = '<option value="">Select Doctor</option>';
+            doctorSelect.disabled = true;
+
+            if (cityId) {
+                fetch(`/ajax/hospitals/?city=${cityId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        hospitalSelect.innerHTML = '<option value="">Select Hospital</option>';
+                        data.forEach(hospital => {
+                            hospitalSelect.innerHTML += `<option value="${hospital.id}">${hospital.name}</option>`;
+                        });
+                        hospitalSelect.disabled = false;
+                    });
+            } else {
+                 hospitalSelect.innerHTML = '<option value="">Select Hospital</option>';
+            }
+        });
+
+        // Fetch Doctors
+        hospitalSelect.addEventListener('change', function() {
+            const hospitalId = this.value;
+            doctorSelect.innerHTML = '<option value="">Loading...</option>';
+            doctorSelect.disabled = true;
+
+            if (hospitalId) {
+                fetch(`/ajax/doctors/?hospital=${hospitalId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        doctorSelect.innerHTML = '<option value="">Select Doctor</option>';
+                        data.forEach(doctor => {
+                            doctorSelect.innerHTML += `<option value="${doctor.id}">${doctor.name} (${doctor.specialization})</option>`;
+                        });
+                        doctorSelect.disabled = false;
+                    });
+            } else {
+                 doctorSelect.innerHTML = '<option value="">Select Doctor</option>';
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% block header_title %}Appointment Details{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-0">Appointment Details</h2>
+            <p class="text-muted">
+                Status: <span class="badge {% if apt.status == 'COMPLETED' %}bg-success{% elif apt.status == 'CANCELLED' %}bg-danger{% else %}bg-secondary{% endif %}">{{ apt.status }}</span> | 
+                Date: {{ apt.date }} | Time: {{ apt.time }}
+            </p>
+        </div>
+        {% if is_patient %}
+        <a href="{% url 'patient_history' %}" class="btn btn-outline-secondary">Back to History</a>
+        {% else %}
+        <a href="{% url 'hospital_dashboard' %}" class="btn btn-outline-secondary">Back to Dashboard</a>
+        {% endif %}
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light"><h5 class="mb-0">Patient Information</h5></div>
+        <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h6 class="text-secondary">Patient Details</h6>
+                        <h5 class="fw-bold">{{ apt.patient.get_full_name }}</h5>
+                        <p class="mb-1"><strong>Age:</strong> {{ patient_age|default:'N/A' }}</p>
+                        <p class="mb-1"><strong>Gender:</strong> {{ apt.patient.get_gender_display|default:'-' }}</p>
+                        <p class="mb-1"><strong>Blood Group:</strong> {{ apt.patient.blood_group|default:'-' }}</p>
+                        <p class="mb-1"><strong>Address:</strong> {{ apt.patient.address|default:'-' }}</p>
+                        <p class="mb-1 text-danger"><strong>Emergency:</strong> {{ apt.patient.emergency_contact|default:'-' }}</p>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <h6 class="text-secondary">Consultation Date</h6>
+                        <h5>{{ consultation.started_at|date:"d M Y, h:i A" }}</h5>
+                        <h6 class="text-secondary mt-3">Overall Health</h6>
+                        {% if health_status %}
+                        <h3 class="text-{{ health_color }} fw-bold">{{ health_status }}</h3>
+                        <p class="small text-muted">{{ health_msg }}</p>
+                        {% else %}
+                        <span class="badge bg-secondary">Pending Vitals</span>
+                        {% endif %}
+                    </div>
+                </div>
+        </div>
+    </div>
+
+    {% if consultation %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white"><h5 class="mb-0">Clinical Consultation Record</h5></div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-3"><strong>Nurse:</strong> {{ consultation.nurse_name|default:"-" }}</div>
+                <div class="col-md-3"><strong>Start Time:</strong> {{ consultation.started_at }}</div>
+                <div class="col-md-3"><strong>End Time:</strong> {{ consultation.completed_at|default:"-" }}</div>
+            </div>
+            <hr>
+            <h6 class="text-muted">Vitals</h6>
+            <div class="row mb-3">
+                <div class="col-md-3"><strong>BP:</strong> {{ consultation.bp|default:"-" }}</div>
+                <div class="col-md-3"><strong>Pulse:</strong> {{ consultation.pulse|default:"-" }}</div>
+                <div class="col-md-3"><strong>Temp:</strong> {{ consultation.temperature|default:"-" }}</div>
+                <div class="col-md-3"><strong>Weight:</strong> {{ consultation.weight|default:"-" }}</div>
+            </div>
+            <hr>
+            <h6 class="text-muted">Assessment</h6>
+            <div class="mb-2"><strong>Symptoms:</strong> <p>{{ consultation.symptoms|default:"-"|linebreaks }}</p></div>
+            <div class="mb-2"><strong>Diagnosis:</strong> <p>{{ consultation.diagnosis|default:"-"|linebreaks }}</p></div>
+            <div class="mb-2"><strong>Advice:</strong> <p>{{ consultation.advice|default:"-"|linebreaks }}</p></div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-success text-white"><h5 class="mb-0">Prescription</h5></div>
+        <div class="card-body">
+            {% if consultation.prescriptions.exists %}
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Medicine</th>
+                            <th>Dosage</th>
+                            <th>Duration</th>
+                            <th>Instructions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pres in consultation.prescriptions.all %}
+                        <tr>
+                            <td>{{ pres.medicine_name }}</td>
+                            <td>{{ pres.dosage }}</td>
+                            <td>{{ pres.duration }}</td>
+                            <td>{{ pres.instructions }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted">No medicines prescribed.</p>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        No clinical consultation record exists for this appointment.
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

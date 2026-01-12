@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% block header_title %}Clinical Consultation{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-0">Consultation Session</h2>
+            <p class="text-muted">
+                Patient: <strong>{{ apt.patient.get_full_name|default:apt.patient.username }}</strong> | 
+                Doctor: <strong>{{ apt.doctor }}</strong> | 
+                Date: {{ apt.date }}
+            </p>
+        </div>
+        <a href="{% url 'hospital_dashboard' %}" class="btn btn-outline-secondary">Back to Dashboard</a>
+    </div>
+
+    <form method="post" id="consultationForm">
+        {% csrf_token %}
+        
+        <!-- Step 1: Session Details -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light"><h5 class="mb-0">1. Session Details</h5></div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Started At</label>
+                        <input type="text" class="form-control" value="{{ consultation.started_at }}" readonly>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Nurse Name</label>
+                        <input type="text" class="form-control" name="nurse_name" value="{{ consultation.nurse_name }}" placeholder="Attending Nurse">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Vitals -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-info text-white"><h5 class="mb-0">2. Vitals</h5></div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Blood Pressure (BP)</label>
+                        <input type="text" class="form-control" name="bp" value="{{ consultation.bp|default:'' }}" placeholder="e.g. 120/80">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Pulse (bpm)</label>
+                        <input type="text" class="form-control" name="pulse" value="{{ consultation.pulse|default:'' }}" placeholder="e.g. 72">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Temperature (F)</label>
+                        <input type="text" class="form-control" name="temperature" value="{{ consultation.temperature|default:'' }}" placeholder="e.g. 98.6">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Weight (kg)</label>
+                        <input type="text" class="form-control" name="weight" value="{{ consultation.weight|default:'' }}" placeholder="e.g. 70">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Clinical Assessment -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white"><h5 class="mb-0">3. Assessment & Plan</h5></div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Symptoms / Chief Complaints</label>
+                    <textarea class="form-control" name="symptoms" rows="3">{{ consultation.symptoms }}</textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Diagnosis</label>
+                    <textarea class="form-control" name="diagnosis" rows="2">{{ consultation.diagnosis }}</textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Advice / Plan</label>
+                    <textarea class="form-control" name="advice" rows="3">{{ consultation.advice }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 4: Prescription -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">4. Prescription</h5>
+                <button type="button" class="btn btn-sm btn-light text-success" onclick="addMedRow()"><i class="bi bi-plus-circle"></i> Add Medicine</button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="medTable">
+                        <thead>
+                            <tr class="table-light">
+                                <th style="width: 30%">Medicine Name</th>
+                                <th style="width: 15%">Dosage</th>
+                                <th style="width: 15%">Duration</th>
+                                <th>Instructions</th>
+                                <th style="width: 5%"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="medBody">
+                            {% for pres in consultation.prescriptions.all %}
+                            <tr>
+                                <td><input type="text" class="form-control" name="med_name[]" value="{{ pres.medicine_name }}" required></td>
+                                <td><input type="text" class="form-control" name="dosage[]" value="{{ pres.dosage }}" placeholder="1-0-1"></td>
+                                <td><input type="text" class="form-control" name="duration[]" value="{{ pres.duration }}" placeholder="5 days"></td>
+                                <td><input type="text" class="form-control" name="instruction[]" value="{{ pres.instructions }}" placeholder="After food"></td>
+                                <td><button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)"><i class="bi bi-trash"></i></button></td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td><input type="text" class="form-control" name="med_name[]" placeholder="Tablet/Syrup Name" required></td>
+                                <td><input type="text" class="form-control" name="dosage[]" placeholder="1-0-1"></td>
+                                <td><input type="text" class="form-control" name="duration[]" placeholder="5 days"></td>
+                                <td><input type="text" class="form-control" name="instruction[]" placeholder="After food"></td>
+                                <td><button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)"><i class="bi bi-trash"></i></button></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mb-5">
+            <button type="submit" name="save_draft" class="btn btn-secondary btn-lg">Save Draft</button>
+            <button type="submit" name="complete_consultation" class="btn btn-success btn-lg"><i class="bi bi-check-circle-fill me-2"></i> Complete Consultation</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    function addMedRow() {
+        const tbody = document.getElementById('medBody');
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><input type="text" class="form-control" name="med_name[]" required></td>
+            <td><input type="text" class="form-control" name="dosage[]" placeholder="1-0-1"></td>
+            <td><input type="text" class="form-control" name="duration[]" placeholder="5 days"></td>
+            <td><input type="text" class="form-control" name="instruction[]" placeholder="After food"></td>
+            <td><button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)"><i class="bi bi-trash"></i></button></td>
+        `;
+        tbody.appendChild(row);
+    }
+
+    function removeRow(btn) {
+        const row = btn.closest('tr');
+        if (document.querySelectorAll('#medBody tr').length > 1) {
+            row.remove();
+        } else {
+            // If it's the last row, just clear values
+            row.querySelectorAll('input').forEach(input => input.value = '');
+        }
+    }
+</script>
+{% endblock %}
