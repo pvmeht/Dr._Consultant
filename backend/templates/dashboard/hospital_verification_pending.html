@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block header_title %}Verification Pending{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 text-center">
+        <div class="card shadow-sm border-warning">
+            <div class="card-body p-5">
+                <i class="bi bi-hourglass-split display-1 text-warning mb-4"></i>
+                <h2 class="card-title">Verification Pending</h2>
+                <p class="lead">Your hospital account <strong>{{ hospital.name }}</strong> is currently awaiting verification by the system administrator.</p>
+                <p class="text-muted">You will be able to access the dashboard and manage your hospital once verified.</p>
+                <div class="mt-4">
+                    <a href="{% url 'index' %}" class="btn btn-outline-primary">Return to Home</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
