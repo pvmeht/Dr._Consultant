@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block header_title %}Home{% endblock %}
+
+{% block layout %}
+<main class="col-12 p-0">
+    <!-- Hero Section -->
+    <div class="p-5 text-center bg-light" style="background: linear-gradient(135deg, #0f172a 0%, #1e40af 100%); color: white; min-height: 500px; display: flex; align-items: center; justify-content: center;">
+        <div class="container py-5">
+            <h1 class="display-3 fw-bold mb-4">Welcome to HealthCO</h1>
+            <p class="lead mb-4 mx-auto" style="max-width: 700px; opacity: 0.9;">
+                Your trusted partner in healthcare management. Connecting patients with the best hospitals and doctors in Pune.
+            </p>
+            
+            <div class="row justify-content-center mt-5">
+                <div class="col-md-5">
+                    <div class="card shadow-lg border-0 h-100" style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);">
+                        <div class="card-body p-4 text-white">
+                            <h5 class="card-title fw-bold">Get Started</h5>
+                            <p class="card-text small mb-4">Access your dashboard or book appointments instantly.</p>
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'login' %}" class="btn btn-light fw-bold text-primary">Login to Portal</a>
+                                <a href="{% url 'book_appointment' %}" class="btn btn-outline-light">Continue as Guest</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Our Services (Ceremonies) -->
+    <div class="container py-5" id="services">
+        <h2 class="text-center mb-5 fw-bold text-primary">Our Services</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0 text-center p-3 hover-lift">
+                    <div class="card-body">
+                        <div class="display-4 text-primary mb-3"><i class="bi bi-calendar-check"></i></div>
+                        <h4 class="card-title">Instant Booking</h4>
+                        <p class="card-text text-muted">Book appointments with top specialists in Pune instantly without wait times.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0 text-center p-3 hover-lift">
+                    <div class="card-body">
+                        <div class="display-4 text-primary mb-3"><i class="bi bi-hospital"></i></div>
+                        <h4 class="card-title">Verified Hospitals</h4>
+                        <p class="card-text text-muted">Access a network of verified and trusted hospitals like YCM, Ruby Hall, and more.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0 text-center p-3 hover-lift">
+                    <div class="card-body">
+                        <div class="display-4 text-primary mb-3"><i class="bi bi-file-medical"></i></div>
+                        <h4 class="card-title">Digital Records</h4>
+                        <p class="card-text text-muted">Keep all your prescriptions and vital history secure and accessible anywhere.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Us Section -->
+    <div class="bg-white py-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h2 class="fw-bold text-dark mb-4">About HealthCO</h2>
+                    <p class="lead text-secondary">
+                        HealthCO is dedicated to digitizing the healthcare experience in Maharashtra. 
+                        We aim to bridge the gap between rural/urban patients and top-tier medical facilities.
+                    </p>
+                    <p class="text-muted">
+                        Founded with the vision of "Health for All", we provide a unified platform for Hospital Administration, 
+                        Doctor Scheduling, and Patient Care.
+                    </p>
+                    <a href="#" class="btn btn-outline-primary mt-3">Read More</a>
+                </div>
+                <div class="col-md-6 text-center">
+                     <!-- Placeholder for an image -->
+                    <div class="bg-light rounded-3 p-5 text-muted">
+                        <i class="bi bi-people-fill display-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Us -->
+    <div class="container py-5 mb-5" id="contact">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h2 class="fw-bold mb-3">Contact Us</h2>
+                <p class="text-muted mb-5">Have questions? We are here to help.</p>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+             <div class="col-md-5 mb-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4 text-center">
+                        <i class="bi bi-geo-alt text-primary h1 mb-3"></i>
+                        <h5>Visit Us</h5>
+                        <p class="text-muted">IT Park, Hinjewadi<br>Pune, Maharashtra 411057</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5 mb-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4 text-center">
+                        <i class="bi bi-envelope text-primary h1 mb-3"></i>
+                        <h5>Email Us</h5>
+                        <p class="text-muted">support@healthco.com<br>admin@healthco.com</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

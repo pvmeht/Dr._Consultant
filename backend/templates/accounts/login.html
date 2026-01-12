@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h3 class="text-center mb-4">Login</h3>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <input type="text" name="username" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <div class="input-group">
+                            <input type="password" name="password" class="form-control" id="passwordInput" required>
+                            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <script>
+                        const togglePassword = document.querySelector('#togglePassword');
+                        const password = document.querySelector('#passwordInput');
+                        togglePassword.addEventListener('click', function (e) {
+                            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                            password.setAttribute('type', type);
+                            this.querySelector('i').classList.toggle('bi-eye');
+                            this.querySelector('i').classList.toggle('bi-eye-slash');
+                        });
+                    </script>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" name="remember_me" id="rememberMe">
+                        <label class="form-check-label" for="rememberMe">Remember me</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-2">Login</button>
+                </form>
+                <div class="text-center mt-3">
+                    <p>Don't have an account? <a href="/register/" class="text-decoration-none">Register</a></p>
+                    <hr>
+                    <p class="mb-0">Just want to book a slot?</p>
+                    <a href="{% url 'book_appointment' %}" class="btn btn-outline-success mt-2">Continue as Guest</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
