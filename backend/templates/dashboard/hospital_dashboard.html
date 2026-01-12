@@ -1,0 +1,531 @@
+{% extends 'base.html' %}
+
+{% block header_title %}Hospital Management{% endblock %}
+
+{% block content %}
+<ul class="nav nav-tabs mb-4" id="hospitalTab" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab">Overview</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="appointments-tab" data-bs-toggle="tab" data-bs-target="#appointments-tab-content" type="button" role="tab">Appointments</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button" role="tab">Hospital Info</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="doctors-tab" data-bs-toggle="tab" data-bs-target="#doctors" type="button" role="tab">Doctors</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="staff-tab" data-bs-toggle="tab" data-bs-target="#staff" type="button" role="tab">Staff Management</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="beds-tab" data-bs-toggle="tab" data-bs-target="#beds" type="button" role="tab">Bed Management</button>
+  </li>
+</ul>
+
+<div class="tab-content" id="hospitalTabContent">
+  <!-- Overview Tab -->
+  <div class="tab-pane fade show active" id="overview" role="tabpanel">
+      <div class="row">
+          <div class="col-md-4">
+              <div class="card text-white bg-primary mb-3">
+                  <div class="card-body">
+                      <h5 class="card-title">Appointments</h5>
+                      <p class="display-6">{{ appointments.count }}</p>
+                  </div>
+              </div>
+          </div>
+          <div class="col-md-4">
+               <div class="card text-white bg-success mb-3">
+                  <div class="card-body">
+                      <h5 class="card-title">Doctors</h5>
+                      <p class="display-6">{{ doctors.count }}</p>
+                  </div>
+              </div>
+          </div>
+          <div class="col-md-4">
+               <div class="card text-white bg-info mb-3">
+                  <div class="card-body">
+                      <h5 class="card-title">Active Staff</h5>
+                      <p class="display-6">{{ staff.count }}</p>
+                  </div>
+              </div>
+          </div>
+      </div>
+      
+      <div class="card shadow-sm mt-4">
+          <div class="card-header bg-light">
+              <h5 class="mb-0">Recent Appointments</h5>
+          </div>
+          <div class="card-body">
+              {% if appointments %}
+              <table class="table table-hover">
+                  <thead>
+                      <tr>
+                          <th>Date</th>
+                          <th>Time</th>
+                          <th>Doctor</th>
+                          <th>Patient</th>
+                          <th>Status</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      {% for apt in appointments %}
+                      <tr>
+                          <td>{{ apt.date }}</td>
+                          <td>{{ apt.time }}</td>
+                          <td>{{ apt.doctor }}</td>
+                          <td>{{ apt.patient }}</td>
+                          <td>{{ apt.status }}</td>
+                      </tr>
+                      {% endfor %}
+                  </tbody>
+              </table>
+              {% else %}
+              <p class="text-muted">No appointments found.</p>
+              {% endif %}
+          </div>
+      </div>
+  </div>
+
+  <!-- Appointments Tab -->
+  <div class="tab-pane fade" id="appointments-tab-content" role="tabpanel">
+      <div class="card shadow-sm">
+          <div class="card-header bg-white">
+            <ul class="nav nav-pills card-header-pills" id="aptPills" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="pending-tab" data-bs-toggle="pill" data-bs-target="#pending" type="button">Pending <span class="badge bg-warning text-dark">{{ pending_appointments.count }}</span></button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="confirmed-tab" data-bs-toggle="pill" data-bs-target="#confirmed" type="button">Confirmed <span class="badge bg-primary">{{ confirmed_appointments.count }}</span></button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="completed-tab" data-bs-toggle="pill" data-bs-target="#completed" type="button">Completed <span class="badge bg-success">{{ completed_appointments.count }}</span></button>
+                </li>
+                 <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="cancelled-tab" data-bs-toggle="pill" data-bs-target="#cancelled" type="button">Cancelled <span class="badge bg-secondary">{{ cancelled_appointments.count }}</span></button>
+                </li>
+            </ul>
+          </div>
+          <div class="card-body">
+              <div class="tab-content">
+                  <!-- PENDING -->
+                  <div class="tab-pane fade show active" id="pending" role="tabpanel">
+                       {% if pending_appointments %}
+                       <table class="table table-hover align-middle">
+                           <thead><tr><th>Date</th><th>Patient</th><th>Doctor</th><th>Actions</th></tr></thead>
+                           <tbody>
+                               {% for apt in pending_appointments %}
+                               <tr>
+                                   <td>{{ apt.date }}<br><small class="text-muted">{{ apt.time }}</small></td>
+                                   <td>{{ apt.patient.get_full_name|default:apt.patient.username }}</td>
+                                   <td>{{ apt.doctor }}</td>
+                                   <td>
+                                       <form method="post" action="{% url 'update_apt_status' apt.id %}" class="d-inline">
+                                           {% csrf_token %}
+                                           <input type="hidden" name="status" value="CONFIRMED">
+                                           <button class="btn btn-sm btn-success">Confirm</button>
+                                       </form>
+                                       <form method="post" action="{% url 'update_apt_status' apt.id %}" class="d-inline">
+                                           {% csrf_token %}
+                                           <input type="hidden" name="status" value="CANCELLED">
+                                           <button class="btn btn-sm btn-outline-danger">Cancel</button>
+                                       </form>
+                                   </td>
+                               </tr>
+                               {% endfor %}
+                           </tbody>
+                       </table>
+                       {% else %}<p class="text-muted p-3">No pending appointments.</p>{% endif %}
+                  </div>
+
+                  <!-- CONFIRMED -->
+                  <div class="tab-pane fade" id="confirmed" role="tabpanel">
+                       {% if confirmed_appointments %}
+                       <table class="table table-hover align-middle">
+                           <thead><tr><th>Date</th><th>Patient</th><th>Doctor</th><th>Actions</th></tr></thead>
+                           <tbody>
+                               {% for apt in confirmed_appointments %}
+                               <tr>
+                                   <td>{{ apt.date }}<br><small class="text-muted">{{ apt.time }}</small></td>
+                                   <td>{{ apt.patient.get_full_name|default:apt.patient.username }}</td>
+                                   <td>{{ apt.doctor }}</td>
+                                   <td>
+                                       <a href="{% url 'consultation_view' apt.id %}" class="btn btn-sm btn-primary">
+                                           <i class="bi bi-play-fill"></i> Proceed
+                                       </a>
+                                       <form method="post" action="{% url 'update_apt_status' apt.id %}" class="d-inline ms-2">
+                                           {% csrf_token %}
+                                           <input type="hidden" name="status" value="CANCELLED">
+                                           <button class="btn btn-sm btn-outline-danger">Cancel</button>
+                                       </form>
+                                   </td>
+                               </tr>
+                               {% endfor %}
+                           </tbody>
+                       </table>
+                       {% else %}<p class="text-muted p-3">No confirmed appointments.</p>{% endif %}
+                  </div>
+
+                  <!-- COMPLETED -->
+                  <div class="tab-pane fade" id="completed" role="tabpanel">
+                       {% if completed_appointments %}
+                       <table class="table table-hover align-middle">
+                           <thead><tr><th>Date</th><th>Patient</th><th>Doctor</th><th>View</th></tr></thead>
+                           <tbody>
+                               {% for apt in completed_appointments %}
+                               <tr>
+                                   <td>{{ apt.date }}</td>
+                                   <td>{{ apt.patient.get_full_name|default:apt.patient.username }}</td>
+                                   <td>{{ apt.doctor }}</td>
+                                   <td><a href="{% url 'appointment_detail' apt.id %}" class="btn btn-sm btn-outline-secondary">Details</a></td>
+                               </tr>
+                               {% endfor %}
+                           </tbody>
+                       </table>
+                       {% else %}<p class="text-muted p-3">No completed appointments.</p>{% endif %}
+                  </div>
+
+                  <!-- CANCELLED -->
+                  <div class="tab-pane fade" id="cancelled" role="tabpanel">
+                        {% if cancelled_appointments %}
+                       <table class="table table-hover align-middle">
+                           <thead><tr><th>Date</th><th>Patient</th><th>Doctor</th></tr></thead>
+                           <tbody>
+                               {% for apt in cancelled_appointments %}
+                               <tr>
+                                   <td>{{ apt.date }}</td>
+                                   <td>{{ apt.patient.get_full_name|default:apt.patient.username }}</td>
+                                   <td>{{ apt.doctor }}</td>
+                               </tr>
+                               {% endfor %}
+                           </tbody>
+                       </table>
+                       {% else %}<p class="text-muted p-3">No cancelled appointments.</p>{% endif %}
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <!-- Info Tab -->
+  <div class="tab-pane fade" id="info" role="tabpanel">
+      <div class="card shadow-sm">
+          <div class="card-body">
+              <h5 class="card-title mb-4">Hospital Details</h5>
+              <form method="post" action="{% url 'update_hospital_info' %}">
+                  {% csrf_token %}
+                  <div class="mb-3">
+                      <label class="form-label">Hospital Name</label>
+                      <input type="text" class="form-control" name="name" value="{{ hospital.name }}">
+                  </div>
+                  <div class="mb-3">
+                      <label class="form-label">Address</label>
+                      <textarea class="form-control" name="address" rows="3">{{ hospital.address }}</textarea>
+                  </div>
+                  <div class="row">
+                       <div class="col-md-6 mb-3">
+                          <label class="form-label">Phone</label>
+                          <input type="text" class="form-control" name="phone" value="{{ hospital.phone }}">
+                      </div>
+                      <div class="col-md-6 mb-3">
+                          <label class="form-label">Email</label>
+                          <input type="email" class="form-control" name="email" value="{{ hospital.email }}">
+                      </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary">Update Details</button>
+              </form>
+          </div>
+      </div>
+  </div>
+
+  <!-- Doctor Management Tab -->
+  <div class="tab-pane fade" id="doctors" role="tabpanel">
+       <div class="row">
+          <div class="col-md-5">
+              <div class="card shadow-sm mb-3">
+                  <div class="card-header bg-primary text-white">Add New Doctor</div>
+                  <div class="card-body">
+                      <form method="post" action="{% url 'add_doctor' %}">
+                          {% csrf_token %}
+                          <div class="row mb-3">
+                              <div class="col">
+                                  <label class="form-label">First Name</label>
+                                  <input type="text" class="form-control" name="first_name" required>
+                              </div>
+                              <div class="col">
+                                  <label class="form-label">Last Name</label>
+                                  <input type="text" class="form-control" name="last_name" required>
+                              </div>
+                          </div>
+                          <div class="mb-3">
+                              <label class="form-label">Specialization</label>
+                              <select class="form-select" name="specialization" required>
+                                  <option value="General Physician">General Physician</option>
+                                  <option value="Cardiologist">Cardiologist</option>
+                                  <option value="Dermatologist">Dermatologist</option>
+                                  <option value="Pediatrician">Pediatrician</option>
+                                  <option value="Neurologist">Neurologist</option>
+                                  <option value="The Gynecologist">Gynecologist</option>
+                                  <option value="Orthopedist">Orthopedist</option>
+                                  <option value="Surgeon">Surgeon</option>
+                                  <option value="Psychiatrist">Psychiatrist</option>
+                                  <option value="ENT Specialist">ENT Specialist</option>
+                                  <option value="Ophthalmologist">Ophthalmologist</option>
+                                  <option value="Dentist">Dentist</option>
+                              </select>
+                          </div>
+                          <hr>
+                          <small class="text-muted d-block mb-2">Login Credentials for Doctor</small>
+                          <div class="mb-3">
+                              <label class="form-label">Username</label>
+                              <input type="text" class="form-control" name="username" required>
+                          </div>
+                           <div class="mb-3">
+                              <label class="form-label">Password</label>
+                              <input type="password" class="form-control" name="password" required>
+                          </div>
+                          <button type="submit" class="btn btn-primary w-100">Create Doctor Profile</button>
+                      </form>
+                  </div>
+              </div>
+          </div>
+          <div class="col-md-7">
+               <div class="card shadow-sm">
+                  <div class="card-header bg-white">Registered Doctors</div>
+                  <div class="card-body p-0">
+                      <table class="table table-hover mb-0">
+                          <thead class="table-light">
+                              <tr>
+                                  <th>Doctor Name</th>
+                                  <th>Specialization</th>
+                                  <th>Status</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              {% for doc in doctors %}
+                              <tr>
+                                  <td>Dr. {{ doc.user.first_name }} {{ doc.user.last_name }}</td>
+                                  <td><span class="badge bg-info text-dark">{{ doc.specialization }}</span></td>
+                                  <td>
+                                      {% if doc.available %}
+                                      <span class="badge bg-success">Available</span>
+                                      {% else %}
+                                      <span class="badge bg-secondary">Away</span>
+                                      {% endif %}
+                                  </td>
+                              </tr>
+                              {% empty %}
+                               <tr><td colspan="3" class="text-center py-3 text-muted">No doctors registered yet.</td></tr>
+                              {% endfor %}
+                          </tbody>
+                      </table>
+                  </div>
+              </div>
+          </div>
+       </div>
+  </div>
+
+  <!-- Doctor Management Tab -->
+  <div class="tab-pane fade" id="doctors" role="tabpanel">
+       <div class="row">
+          <div class="col-md-5">
+              <div class="card shadow-sm mb-3">
+                  <div class="card-header bg-primary text-white">Add New Doctor</div>
+                  <div class="card-body">
+                      <form method="post" action="{% url 'add_doctor' %}">
+                          {% csrf_token %}
+                          <div class="row mb-3">
+                              <div class="col">
+                                  <label class="form-label">First Name</label>
+                                  <input type="text" class="form-control" name="first_name" required>
+                              </div>
+                              <div class="col">
+                                  <label class="form-label">Last Name</label>
+                                  <input type="text" class="form-control" name="last_name" required>
+                              </div>
+                          </div>
+                          <div class="mb-3">
+                              <label class="form-label">Specialization</label>
+                              <select class="form-select" name="specialization" required>
+                                  <option value="General Physician">General Physician</option>
+                                  <option value="Cardiologist">Cardiologist</option>
+                                  <option value="Dermatologist">Dermatologist</option>
+                                  <option value="Pediatrician">Pediatrician</option>
+                                  <option value="Neurologist">Neurologist</option>
+                                  <option value="The Gynecologist">Gynecologist</option>
+                                  <option value="Orthopedist">Orthopedist</option>
+                                  <option value="Surgeon">Surgeon</option>
+                                  <option value="Psychiatrist">Psychiatrist</option>
+                                  <option value="ENT Specialist">ENT Specialist</option>
+                                  <option value="Ophthalmologist">Ophthalmologist</option>
+                                  <option value="Dentist">Dentist</option>
+                              </select>
+                          </div>
+                          <hr>
+                          <small class="text-muted d-block mb-2">Login Credentials for Doctor</small>
+                          <div class="mb-3">
+                              <label class="form-label">Username</label>
+                              <input type="text" class="form-control" name="username" required>
+                          </div>
+                           <div class="mb-3">
+                              <label class="form-label">Password</label>
+                              <input type="password" class="form-control" name="password" required>
+                          </div>
+                          <button type="submit" class="btn btn-primary w-100">Create Doctor Profile</button>
+                      </form>
+                  </div>
+              </div>
+          </div>
+          <div class="col-md-7">
+               <div class="card shadow-sm">
+                  <div class="card-header bg-white">Registered Doctors</div>
+                  <div class="card-body p-0">
+                      <table class="table table-hover mb-0">
+                          <thead class="table-light">
+                              <tr>
+                                  <th>Doctor Name</th>
+                                  <th>Specialization</th>
+                                  <th>Status</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              {% for doc in doctors %}
+                              <tr>
+                                  <td>Dr. {{ doc.user.first_name }} {{ doc.user.last_name }}</td>
+                                  <td><span class="badge bg-info text-dark">{{ doc.specialization }}</span></td>
+                                  <td>
+                                      {% if doc.available %}
+                                      <span class="badge bg-success">Available</span>
+                                      {% else %}
+                                      <span class="badge bg-secondary">Away</span>
+                                      {% endif %}
+                                  </td>
+                              </tr>
+                              {% empty %}
+                               <tr><td colspan="3" class="text-center py-3 text-muted">No doctors registered yet.</td></tr>
+                              {% endfor %}
+                          </tbody>
+                      </table>
+                  </div>
+              </div>
+          </div>
+       </div>
+  </div>
+
+  <!-- Staff Tab -->
+  <div class="tab-pane fade" id="staff" role="tabpanel">
+      <div class="row">
+          <div class="col-md-4">
+              <div class="card shadow-sm mb-3">
+                  <div class="card-header bg-light">Add Staff</div>
+                  <div class="card-body">
+                      <form method="post" action="{% url 'add_staff' %}">
+                          {% csrf_token %}
+                          <div class="mb-3">
+                              <label>Name</label>
+                              <input type="text" class="form-control" name="name" required>
+                          </div>
+                           <div class="mb-3">
+                              <label>Role</label>
+                              <select class="form-select" name="role" required>
+                                  <option value="Doctor">Doctor</option>
+                                  <option value="Nurse">Nurse</option>
+                                  <option value="Compounder">Compounder</option>
+                                  <option value="Other">Other</option>
+                              </select>
+                          </div>
+                           <div class="mb-3">
+                              <label>Phone</label>
+                              <input type="text" class="form-control" name="phone" required>
+                          </div>
+                          <button type="submit" class="btn btn-primary w-100">Add Staff</button>
+                      </form>
+                  </div>
+              </div>
+          </div>
+          <div class="col-md-8">
+              <div class="card shadow-sm">
+                  <div class="card-header bg-light">Staff List</div>
+                  <div class="card-body">
+                      <table class="table">
+                          <thead>
+                              <tr>
+                                  <th>Name</th>
+                                  <th>Role</th>
+                                  <th>Phone</th>
+                                  <th>Action</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              {% for s in staff %}
+                              <tr>
+                                  <td>{{ s.name }}</td>
+                                  <td>{{ s.role }}</td>
+                                  <td>{{ s.phone }}</td>
+                                  <td><a href="#" class="text-danger">Remove</a></td>
+                              </tr>
+                              {% empty %}
+                              <tr><td colspan="4">No staff added.</td></tr>
+                              {% endfor %}
+                          </tbody>
+                      </table>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <!-- Beds Tab -->
+  <div class="tab-pane fade" id="beds" role="tabpanel">
+       <div class="row mb-4">
+           <div class="col-md-12">
+               <div class="card shadow-sm">
+                   <div class="card-body">
+                       <form class="row g-3" method="post" action="{% url 'add_bed' %}">
+                           {% csrf_token %}
+                           <div class="col-auto">
+                               <input type="text" class="form-control" name="ward" placeholder="Ward Name" required>
+                           </div>
+                           <div class="col-auto">
+                               <input type="text" class="form-control" name="number" placeholder="Bed Number" required>
+                           </div>
+                           <div class="col-auto">
+                               <button type="submit" class="btn btn-primary">Add Bed</button>
+                           </div>
+                       </form>
+                   </div>
+               </div>
+           </div>
+       </div>
+       
+       <div class="row">
+           {% for bed in beds %}
+           <div class="col-md-3 mb-3">
+               <div class="card h-100 {% if bed.is_occupied %}border-danger{% else %}border-success{% endif %}">
+                   <div class="card-body text-center">
+                       <h5 class="card-title">{{ bed.ward }} - {{ bed.number }}</h5>
+                       <p class="card-text">
+                           {% if bed.is_occupied %}
+                           <span class="badge bg-danger">Occupied</span>
+                           {% else %}
+                           <span class="badge bg-success">Available</span>
+                           {% endif %}
+                       </p>
+                       <form method="post" action="{% url 'toggle_bed' bed.id %}">
+                           {% csrf_token %}
+                           <button type="submit" class="btn btn-sm {% if bed.is_occupied %}btn-outline-danger{% else %}btn-outline-success{% endif %}">
+                               {% if bed.is_occupied %}Mark Free{% else %}Mark Occupied{% endif %}
+                           </button>
+                       </form>
+                   </div>
+               </div>
+           </div>
+           {% empty %}
+           <p class="text-muted">No beds registered.</p>
+           {% endfor %}
+       </div>
+  </div>
+</div>
+{% endblock %}
